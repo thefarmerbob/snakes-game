@@ -37,14 +37,7 @@ export default function SnakeBoard({
     const availablePaintings = availablePaintingsRef.current;
     
     if (availablePaintings.length === 0) {
-      // All paintings collected - show congratulations
-      setCurrentPainting('congratulations');
-      setShowPainting(true);
-      
-      // Hide congratulations after 5 seconds
-      setTimeout(() => {
-        setShowPainting(false);
-      }, 5000);
+      // All paintings collected - don't show anything, just return
       return;
     }
     
@@ -258,56 +251,24 @@ export default function SnakeBoard({
           alignItems: 'center',
           gap: '10px'
         }}>
-          {currentPainting === 'congratulations' ? (
-            <>
-              <div style={{
-                color: 'gold',
-                fontSize: '3rem',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                marginBottom: '10px'
-              }}>
-                🎉 CONGRATULATIONS! 🎉
-              </div>
-              <div style={{
-                color: 'white',
-                fontSize: '1.5rem',
-                fontWeight: 'bold',
-                textAlign: 'center',
-                marginBottom: '10px'
-              }}>
-                You've collected all 8 paintings!
-              </div>
-              <div style={{
-                color: 'lightblue',
-                fontSize: '1.2rem',
-                textAlign: 'center'
-              }}>
-                🎨 Art Gallery Complete! 🎨
-              </div>
-            </>
-          ) : (
-            <>
-              <img 
-                src={`/maras-paintings/${currentPainting}`} 
-                alt="Painting" 
-                style={{
-                  maxWidth: '400px',
-                  maxHeight: '300px',
-                  objectFit: 'contain',
-                  borderRadius: '5px'
-                }}
-              />
-              <div style={{
-                color: 'white',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                textAlign: 'center'
-              }}>
-                🎨 Painting Collected! ({collectedPaintings.size}/8)
-              </div>
-            </>
-          )}
+          <img 
+            src={`/maras-paintings/${currentPainting}`} 
+            alt="Painting" 
+            style={{
+              maxWidth: '400px',
+              maxHeight: '300px',
+              objectFit: 'contain',
+              borderRadius: '5px'
+            }}
+          />
+          <div style={{
+            color: 'white',
+            fontSize: '1.2rem',
+            fontWeight: 'bold',
+            textAlign: 'center'
+          }}>
+            🎨 Painting Collected! ({collectedPaintings.size}/8)
+          </div>
         </div>
       )}
       {isGameOver && (
