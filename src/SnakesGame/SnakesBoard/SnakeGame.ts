@@ -20,6 +20,7 @@ export class SnakeGameEngine {
   private externalScore: number;
   private setScore: React.Dispatch<React.SetStateAction<number>>;
   private setIsGameOver: React.Dispatch<React.SetStateAction<boolean>>;
+  private onFoodEaten?: () => void;
 
   private internalPlayState: boolean;
 
@@ -31,7 +32,8 @@ export class SnakeGameEngine {
     externalScore: number,
     setScore: React.Dispatch<React.SetStateAction<number>>,
     setIsGameOver: React.Dispatch<React.SetStateAction<boolean>>,
-    isPlaying: boolean
+    isPlaying: boolean,
+    onFoodEaten?: () => void
   ) {
     this.context = context;
 
@@ -47,6 +49,7 @@ export class SnakeGameEngine {
     this.externalScore = externalScore;
     this.setScore = setScore;
     this.setIsGameOver = setIsGameOver;
+    this.onFoodEaten = onFoodEaten;
 
     // these 2 properties set how often the re-render is
     this.currentFrameCount = 0;
@@ -249,6 +252,11 @@ export class SnakeGameEngine {
       );
       this.renderBoard();
       this.snake.move(this.foodCoordinate);
+      
+      // Check if snake just ate and call the callback
+      if (this.snake.justAte && this.onFoodEaten) {
+        this.onFoodEaten();
+      }
     }
 
     this.internalPlayState &&

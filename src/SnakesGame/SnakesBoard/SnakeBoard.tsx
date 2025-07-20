@@ -31,10 +31,44 @@ export default function SnakeBoard({
 
   const canvasSidesLength = 500; // 500px
 
+  // Function to show random painting when food is eaten
+  const handleFoodEaten = () => {
+    const allPaintings = ['p1.png', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg', 'p7.jpg', 'p8.jpg'];
+    
+    // Get paintings that haven't been collected yet
+    const availablePaintings = allPaintings.filter(painting => !collectedPaintings.has(painting));
+    
+    if (availablePaintings.length === 0) {
+      // All paintings collected - show congratulations
+      setCurrentPainting('congratulations');
+      setShowPainting(true);
+      
+      // Hide congratulations after 5 seconds
+      setTimeout(() => {
+        setShowPainting(false);
+      }, 5000);
+      return;
+    }
+    
+    // Select a random uncollected painting
+    const randomPainting = availablePaintings[Math.floor(Math.random() * availablePaintings.length)];
+    setCurrentPainting(randomPainting);
+    setCollectedPaintings(prev => new Set([...prev, randomPainting]));
+    setShowPainting(true);
+    
+    // Hide painting after 3 seconds
+    setTimeout(() => {
+      setShowPainting(false);
+    }, 3000);
+  };
+
   // Drag state
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 500, y: 100 });
+  const [showPainting, setShowPainting] = useState(false);
+  const [currentPainting, setCurrentPainting] = useState('');
+  const [collectedPaintings, setCollectedPaintings] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (canvasRef.current === null) {
@@ -53,7 +87,8 @@ export default function SnakeBoard({
         externalScore,
         setScore,
         setIsGameOver,
-        isPlaying
+        isPlaying,
+        handleFoodEaten
       );
       const snakeGame = snakes.current;
 
@@ -202,6 +237,73 @@ export default function SnakeBoard({
         <span>{score}</span>
       </p>
       <canvas id="game-canvas" ref={canvasRef}></canvas>
+      {showPainting && (
+        <div style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          padding: '20px',
+          borderRadius: '10px',
+          zIndex: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          {currentPainting === 'congratulations' ? (
+            <>
+              <div style={{
+                color: 'gold',
+                fontSize: '3rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginBottom: '10px'
+              }}>
+                🎉 CONGRATULATIONS! 🎉
+              </div>
+              <div style={{
+                color: 'white',
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginBottom: '10px'
+              }}>
+                You've collected all 8 paintings!
+              </div>
+              <div style={{
+                color: 'lightblue',
+                fontSize: '1.2rem',
+                textAlign: 'center'
+              }}>
+                🎨 Art Gallery Complete! 🎨
+              </div>
+            </>
+          ) : (
+            <>
+              <img 
+                src={`/maras-paintings/${currentPainting}`} 
+                alt="Painting" 
+                style={{
+                  maxWidth: '400px',
+                  maxHeight: '300px',
+                  objectFit: 'contain',
+                  borderRadius: '5px'
+                }}
+              />
+              <div style={{
+                color: 'white',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                textAlign: 'center'
+              }}>
+                🎨 Painting Collected! ({collectedPaintings.size}/8)
+              </div>
+            </>
+          )}
+        </div>
+      )}
       {isGameOver && (
         <div style={{
           position: 'absolute',
@@ -216,8 +318,21 @@ export default function SnakeBoard({
           fontWeight: 'bold',
           textAlign: 'center'
         }}>
-          <div>GAME OVER</div>
-          <div style={{ fontSize: '1rem', marginTop: '10px' }}>Final Score: {score}</div>
+          {collectedPaintings.size === 8 ? (
+            <>
+              <div style={{ color: 'gold', fontSize: '2.5rem' }}>🎉 CONGRATULATIONS! 🎉</div>
+              <div style={{ fontSize: '1.5rem', marginTop: '10px' }}>You've collected all paintings!</div>
+              <div style={{ fontSize: '1rem', marginTop: '10px' }}>Final Score: {score}</div>
+            </>
+          ) : (
+            <>
+              <div>GAME OVER</div>
+              <div style={{ fontSize: '1rem', marginTop: '10px' }}>Final Score: {score}</div>
+              <div style={{ fontSize: '0.9rem', marginTop: '5px', color: '#ccc' }}>
+                Paintings collected: {collectedPaintings.size}/8
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
