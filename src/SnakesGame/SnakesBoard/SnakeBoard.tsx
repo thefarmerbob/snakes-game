@@ -37,7 +37,9 @@ export default function SnakeBoard({
     const availablePaintings = availablePaintingsRef.current;
     
     if (availablePaintings.length === 0) {
-      // All paintings collected - don't show anything, just return
+      // All paintings collected - show collection gallery with congratulations
+      setShowCollection(true);
+      setCurrentCollectionIndex(0);
       return;
     }
     
@@ -52,10 +54,41 @@ export default function SnakeBoard({
     setCollectedPaintings(prev => new Set([...prev, randomPainting]));
     setShowPainting(true);
     
-    // Hide painting after 3 seconds
-    setTimeout(() => {
-      setShowPainting(false);
-    }, 3000);
+    // Check if this was the last painting
+    if (availablePaintings.length === 0) {
+      // This was the last painting - show collection gallery after showing it
+      setTimeout(() => {
+        setShowPainting(false);
+        setShowCollection(true);
+        setCurrentCollectionIndex(0);
+      }, 3000);
+    } else {
+      // Hide painting after 3 seconds and continue game
+      setTimeout(() => {
+        setShowPainting(false);
+      }, 3000);
+    }
+  };
+
+  // Function to close collection gallery
+  const closeCollection = () => {
+    setShowCollection(false);
+  };
+
+  // Function to navigate to next painting in collection
+  const nextPainting = () => {
+    const collectedArray = Array.from(collectedPaintings);
+    setCurrentCollectionIndex((prev) => 
+      prev < collectedArray.length - 1 ? prev + 1 : 0
+    );
+  };
+
+  // Function to navigate to previous painting in collection
+  const prevPainting = () => {
+    const collectedArray = Array.from(collectedPaintings);
+    setCurrentCollectionIndex((prev) => 
+      prev > 0 ? prev - 1 : collectedArray.length - 1
+    );
   };
 
   // Drag state
@@ -65,9 +98,11 @@ export default function SnakeBoard({
   const [showPainting, setShowPainting] = useState(false);
   const [currentPainting, setCurrentPainting] = useState('');
   const [collectedPaintings, setCollectedPaintings] = useState<Set<string>>(new Set());
+  const [showCollection, setShowCollection] = useState(false);
+  const [currentCollectionIndex, setCurrentCollectionIndex] = useState(0);
   
   // Use ref to track available paintings list
-  const availablePaintingsRef = useRef<string[]>(['p1.png', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg', 'p7.jpg', 'p8.jpg']);
+  const availablePaintingsRef = useRef<string[]>(['p1.png', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg', 'p7.jpg', 'p8.jpg', 'p9.jpg']);
 
   useEffect(() => {
     if (canvasRef.current === null) {
@@ -236,13 +271,16 @@ export default function SnakeBoard({
         <span>{score}</span>
       </p>
       <canvas id="game-canvas" ref={canvasRef}></canvas>
-      {showPainting && (
+      {showPainting && !isGameOver && (
         <div style={{
           position: 'absolute',
           top: '50%',
           left: '50%',
+          marginTop: '5%',
+          width: '65%',
+          height: '55%',
           transform: 'translate(-50%, -50%)',
-          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
           padding: '20px',
           borderRadius: '10px',
           zIndex: 20,
@@ -255,48 +293,287 @@ export default function SnakeBoard({
             src={`/maras-paintings/${currentPainting}`} 
             alt="Painting" 
             style={{
-              maxWidth: '400px',
-              maxHeight: '300px',
+              width: '90%',
               objectFit: 'contain',
               borderRadius: '5px'
             }}
           />
           <div style={{
             color: 'white',
-            fontSize: '1.2rem',
+            fontSize: '0.8rem',
             fontWeight: 'bold',
             textAlign: 'center'
           }}>
-            🎨 Painting Collected! ({collectedPaintings.size}/8)
+            Painting Collected! ({collectedPaintings.size}/9)
           </div>
         </div>
       )}
-      {isGameOver && (
+      {isGameOver && collectedPaintings.size < 9 && (
         <div style={{
           position: 'absolute',
           top: '50%',
           left: '50%',
+          marginTop: '5%',
+          width: '65%',
+          height: collectedPaintings.size > 0 ? '70%' : '30%',
           transform: 'translate(-50%, -50%)',
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
           color: 'white',
           padding: '20px',
           borderRadius: '10px',
           fontSize: '2rem',
           fontWeight: 'bold',
-          textAlign: 'center'
+          textAlign: 'center',
+          zIndex: 30,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '15px'
         }}>
-          {collectedPaintings.size === 8 ? (
+          <div>GAME OVER</div>
+          
+          {collectedPaintings.size > 0 ? (
             <>
-              <div style={{ color: 'gold', fontSize: '2.5rem' }}>🎉 CONGRATULATIONS! 🎉</div>
-              <div style={{ fontSize: '1.5rem', marginTop: '10px' }}>You've collected all paintings!</div>
-              <div style={{ fontSize: '1rem', marginTop: '10px' }}>Final Score: {score}</div>
+              <div style={{
+                color: 'white',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                textAlign: 'center',
+                marginTop: '10px'
+              }}>
+                Paintings Collected:
+              </div>
+              <div style={{
+                position: 'relative',
+                display: 'inline-block'
+              }}>
+                <img 
+                  src={`/maras-paintings/${Array.from(collectedPaintings)[currentCollectionIndex]}`} 
+                  alt="Painting" 
+                  style={{
+                    width: '90%',
+                    objectFit: 'contain'
+                  }}
+                />
+                {collectedPaintings.size > 1 && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '5%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '15px',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    padding: '5px 10px',
+                    borderRadius: '5px'
+                  }}>
+                    <button 
+                      onClick={() => {
+                        const collectedArray = Array.from(collectedPaintings);
+                        setCurrentCollectionIndex((prev) => 
+                          prev > 0 ? prev - 1 : collectedArray.length - 1
+                        );
+                      }}
+                      style={{
+                        padding: '3px 8px',
+                        fontSize: '0.7rem',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        borderRadius: '3px',
+                        cursor: 'pointer'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                      }}
+                    >
+                      ←
+                    </button>
+                                         <div style={{
+                       color: 'white',
+                       fontSize: '0.6rem',
+                       textAlign: 'center'
+                     }}>
+                       {currentCollectionIndex + 1} of {collectedPaintings.size}
+                     </div>
+                    <button 
+                      onClick={() => {
+                        const collectedArray = Array.from(collectedPaintings);
+                        setCurrentCollectionIndex((prev) => 
+                          prev < collectedArray.length - 1 ? prev + 1 : 0
+                        );
+                      }}
+                      style={{
+                        padding: '3px 8px',
+                        fontSize: '0.7rem',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        color: 'white',
+                        border: '1px solid rgba(255, 255, 255, 0.3)',
+                        borderRadius: '3px',
+                        cursor: 'pointer'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                      }}
+                    >
+                      →
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
+            <div style={{
+              color: '#ccc',
+              fontSize: '0.9rem',
+              textAlign: 'center',
+              marginTop: '10px'
+            }}>
+              No paintings were collected
+            </div>
+          )}
+        </div>
+      )}
+      {showCollection && (
+        <div style={{
+          position: 'absolute',
+          top: '55%',
+          left: '50%',
+          marginTop: '0%',
+          width: '65%',
+          height: '65%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 30,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '15px',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          padding: '20px',
+          borderRadius: '10px',
+        }}>
+          {collectedPaintings.size === 9 && (
+            <div style={{
+              color: 'white',
+              fontSize: '0.8rem',
+              fontWeight: 'bold',
+              textAlign: 'center',
+            }}>
+              Congratulations! You've collected all paintings!
+            </div>
+          )}
+          <button 
+            onClick={closeCollection}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              padding: '5px 8px',
+              fontSize: '0.8rem',
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              width: '25px',
+              height: '25px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+            }}
+          >
+            ×
+          </button>
+          {Array.from(collectedPaintings).length > 0 && (
             <>
-              <div>GAME OVER</div>
-              <div style={{ fontSize: '1rem', marginTop: '10px' }}>Final Score: {score}</div>
-              <div style={{ fontSize: '0.9rem', marginTop: '5px', color: '#ccc' }}>
-                Paintings collected: {collectedPaintings.size}/8
+              <div style={{
+                position: 'relative',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%'
+              }}>
+                <img 
+                  src={`/maras-paintings/${Array.from(collectedPaintings)[currentCollectionIndex]}`} 
+                  alt="Painting" 
+                  style={{
+                    width: '90%',
+                    objectFit: 'contain'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '10px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '15px',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  padding: '5px 10px',
+                  borderRadius: '5px'
+                }}>
+                  <button 
+                    onClick={prevPainting}
+                    style={{
+                      padding: '3px 8px',
+                      fontSize: '0.7rem',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'white',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: '3px',
+                      cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    }}
+                  >
+                    ←
+                  </button>
+                  <div style={{
+                    color: 'white',
+                    fontSize: '0.6rem',
+                    textAlign: 'center'
+                  }}>
+                    {currentCollectionIndex + 1} of {collectedPaintings.size}
+                  </div>
+                  <button 
+                    onClick={nextPainting}
+                    style={{
+                      padding: '3px 8px',
+                      fontSize: '0.7rem',
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      color: 'white',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: '3px',
+                      cursor: 'pointer'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    }}
+                  >
+                    →
+                  </button>
+                </div>
               </div>
             </>
           )}

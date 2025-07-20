@@ -62,7 +62,7 @@ export class SnakeGameEngine {
     if (this.snake.length === 0) {
       return 0;
     }
-    return this.snake.length * 10 - this.snake.defaultlength * 10;
+    return this.snake.length * 1 - this.snake.defaultlength * 1;
   }
 
   private get gameBoard(): Cell[][] {
