@@ -33,10 +33,8 @@ export default function SnakeBoard({
 
   // Function to show random painting when food is eaten
   const handleFoodEaten = () => {
-    const allPaintings = ['p1.png', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg', 'p7.jpg', 'p8.jpg'];
-    
-    // Get paintings that haven't been collected yet
-    const availablePaintings = allPaintings.filter(painting => !collectedPaintings.has(painting));
+    // Get current available paintings from ref
+    const availablePaintings = availablePaintingsRef.current;
     
     if (availablePaintings.length === 0) {
       // All paintings collected - show congratulations
@@ -50,8 +48,13 @@ export default function SnakeBoard({
       return;
     }
     
-    // Select a random uncollected painting
-    const randomPainting = availablePaintings[Math.floor(Math.random() * availablePaintings.length)];
+    // Select a random painting from available list
+    const randomIndex = Math.floor(Math.random() * availablePaintings.length);
+    const randomPainting = availablePaintings[randomIndex];
+    
+    // Remove the selected painting from available list
+    availablePaintings.splice(randomIndex, 1);
+    
     setCurrentPainting(randomPainting);
     setCollectedPaintings(prev => new Set([...prev, randomPainting]));
     setShowPainting(true);
@@ -69,6 +72,9 @@ export default function SnakeBoard({
   const [showPainting, setShowPainting] = useState(false);
   const [currentPainting, setCurrentPainting] = useState('');
   const [collectedPaintings, setCollectedPaintings] = useState<Set<string>>(new Set());
+  
+  // Use ref to track available paintings list
+  const availablePaintingsRef = useRef<string[]>(['p1.png', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg', 'p7.jpg', 'p8.jpg']);
 
   useEffect(() => {
     if (canvasRef.current === null) {
