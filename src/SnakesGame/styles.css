@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Agbalumo&display=swap");
 
 #snakes-game-container {
-  background-color: #ffffdd;
+  position: relative;
   min-height: 100vh;
   cursor: pointer;
   overflow: hidden;
@@ -9,7 +9,7 @@
 
 #game-title {
   text-align: center;
-  background-color: #a2c579;
+  background-color: transparent;
   color: #222;
   font-size: 2.5rem;
   padding-block: 1.5rem;
@@ -18,44 +18,50 @@
 }
 
 .high-score {
+  position: absolute;
+  top: 1rem;
+  left: 54rem;
   background-color: #d2de32;
   color: black;
   font-variant: small-caps;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 1.0rem;
   font-weight: 900;
   width: fit-content;
-  margin-inline: auto;
-  margin-top: 1rem;
-  padding: 0.2rem 1rem;
-  border-radius: 1rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .score {
+  position: absolute;
+  top: 1rem;
+  left: 29.3rem;
+  color: black;
+  font-variant: small-caps;
   text-align: center;
-  font-size: 2em;
+  font-size: 1.0rem;
   font-weight: 900;
-  margin-block: 1rem;
   width: fit-content;
-  margin-inline: auto;
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.5rem;
 }
 
 .score > span:first-child {
   background-color: #61a3ba;
   color: white;
-  padding-block: 0.5rem;
+  padding-block: 0.3rem;
   padding-inline: 1rem 0.3rem;
-  border-top-left-radius: 1rem;
-  border-bottom-left-radius: 1rem;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
 }
 
 .score > span:last-child {
   background-color: #d2de32;
   color: #222;
-  padding-block: 0.5rem;
+  padding-block: 0.3rem;
   padding-inline: 0.8rem 1rem;
-  border-top-right-radius: 1rem;
-  border-bottom-right-radius: 1rem;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .new-game-hint {
@@ -101,7 +107,7 @@
   position: fixed;
   inset: 0;
   outline: 1px solid red;
-  background-color: #a2c579;
+  background: transparent;
   cursor: pointer;
 }
 
@@ -139,7 +145,7 @@
 .congratulate {
   margin-block: 0.5rem;
   font-size: 1.5rem;
-  background-color: #61a3ba;
+  background: transparent;
   color: white;
   padding-inline: 0.5rem;
   font-weight: 900;
